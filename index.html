@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WVortex — Inteligência Artificial para Empresas</title>
+    <meta name="description" content="A WVortex cria agentes de IA que atendem, qualificam e fecham negócios no WhatsApp 24h por dia, 7 dias por semana.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-darkest: #030b17;
+            --navy-dark:    #050d1a;
+            --navy-mid:     #0a1628;
+            --navy-light:   #0f2040;
+            --navy-accent:  #152845;
+            --gold:         #c9a96e;
+            --gold-bright:  #e8c97a;
+            --gold-dim:     #9a7a4a;
+            --gold-pale:    #f0e6d0;
+            --text-primary: #f0ece2;
+            --text-secondary:#bccadb;
+            --text-muted:   #8a9bb5;
+            --border:       rgba(201,169,110,0.13);
+            --border-bright:rgba(201,169,110,0.32);
+            --green:        #4caf8a;
+            --red:          #e05f5f;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-body:    'Raleway', sans-serif;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--navy-dark);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ══════════════════ NAV ══════════════════ */
+        nav {
+            position: fixed; top:0; left:0; right:0; z-index:200;
+            padding: 1.2rem 3rem;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(5,13,26,0.88);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border);
+            transition: padding 0.3s ease;
+        }
+        .nav-logo {
+            display:flex; align-items:center; gap:0; text-decoration:none; line-height:0;
+        }
+        .nav-logo-text {
+            font-family: var(--font-body);
+            font-weight:700; font-size:1rem; letter-spacing:0.28em; color:var(--gold);
+        }
+        .nav-links { display:flex; align-items:center; gap:1.6rem; list-style:none; margin-left:2rem; }
+        .nav-links a {
+            color:var(--text-secondary); text-decoration:none;
+            font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500;
+            transition:color 0.3s; white-space:nowrap;
+        }
+        .nav-links a:hover { color:var(--gold); }
+        .nav-cta {
+            border:1px solid var(--gold-dim) !important;
+            color:var(--gold) !important;
+            padding:0.55rem 1rem !important; border-radius:2px; white-space:nowrap;
+        }
+        .nav-cta:hover { background:var(--gold) !important; color:var(--navy-dark) !important; }
+        .hamburger {
+            display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px;
+        }
+        .hamburger span { width:24px; height:2px; background:var(--gold); border-radius:2px; transition:all 0.3s; }
+        .mobile-menu {
+            display:none; position:fixed; top:64px; left:0; right:0; z-index:199;
+            background:rgba(5,13,26,0.98); backdrop-filter:blur(24px);
+            padding:2rem; border-bottom:1px solid var(--border);
+            flex-direction:column; gap:1.5rem;
+        }
+        .mobile-menu.open { display:flex; }
+        .mobile-menu a {
+            color:var(--text-secondary); text-decoration:none;
+            font-size:0.9rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:500;
+        }
+        .mobile-menu a:last-child {
+            color:var(--gold); border:1px solid var(--gold-dim);
+            padding:0.8rem 1.5rem; text-align:center; border-radius:2px; margin-top:0.5rem;
+        }
+
+        /* ══════════════════ HERO ══════════════════ */
+        #hero {
+            position:relative; min-height:100vh;
+            display:flex; align-items:center; justify-content:center;
+            text-align:center; overflow:hidden; padding:8rem 2rem 7rem;
+        }
+        .hero-bg {
+            position:absolute; inset:0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 35%, rgba(201,169,110,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse at 10% 90%, rgba(10,22,40,0.9) 0%, transparent 50%),
+                var(--navy-darkest);
+        }
+        .stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+        .section-stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+        .section-stars-wrap { position:relative; }
+        .section-stars-wrap > .container,
+        .section-stars-wrap > .hero-content,
+        .section-stars-wrap > .hero-scroll { position:relative; z-index:1; }
+        .star {
+            position:absolute; border-radius:50%;
+            background:var(--gold);
+            opacity:0;
+            animation:twinkle var(--dur,4s) ease-in-out var(--del,0s) infinite;
+        }
+        @keyframes twinkle {
+            0%,100%{opacity:0;transform:scale(.5);}
+            50%{opacity:var(--op,.4);transform:scale(1);}
+        }
+        .hero-content { position:relative; z-index:2; max-width:920px; }
+        .hero-badge {
+            display:inline-flex; align-items:center; gap:0.6rem;
+            background:rgba(201,169,110,0.07); border:1px solid var(--border);
+            color:var(--gold); font-size:0.7rem; letter-spacing:0.22em;
+            text-transform:uppercase; padding:0.5rem 1.3rem; border-radius:100px;
+            margin-bottom:2.5rem;
+            animation:fadeDown 0.8s ease 0.2s both;
+        }
+        .hero-badge-dot {
+            width:7px;height:7px;background:var(--gold);border-radius:50%;
+            animation:pulseDot 2s ease infinite;
+        }
+        @keyframes pulseDot {
+            0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,.5);}
+            50%{box-shadow:0 0 0 7px rgba(201,169,110,0);}
+        }
+        .hero-title {
+            font-family:var(<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Oswald:wght@200..700&display=swap" rel="stylesheet">);
+            font-size:clamp(2.4rem,7vw,2rem);
+            font-weight:900; line-height:1.08; letter-spacing:-0.02em;
+            margin-bottom:1.6rem;
+            animation:fadeDown 0.8s ease 0.4s both;
+        }
+        .hero-title em { font-style:normal; color:var(--gold); }
+        .hero-sub {
+            font-size:1.05rem; font-weight:300; color:var(--text-secondary);
+            max-width:620px; margin:0 auto 3.2rem; line-height:1.85;
+            animation:fadeDown 0.8s ease 0.6s both;
+        }
+        .hero-ctas {
+            display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;
+            animation:fadeDown 0.8s ease 0.8s both;
+        }
+        .hero-scroll {
+            position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%);
+            display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+            color:var(--text-muted); font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase;
+            animation:fadeIn 1s ease 1.5s both;
+        }
+        .scroll-line {
+            width:1px; height:40px;
+            background:linear-gradient(to bottom, var(--gold-dim), transparent);
+            animation:scrollPulse 2s ease infinite;
+        }
+        @keyframes scrollPulse { 0%,100%{opacity:.3;} 50%{opacity:1;} }
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-18px);} to{opacity:1;transform:translateY(0);} }
+        @keyframes fadeIn   { from{opacity:0;} to{opacity:1;} }
+
+        /* ══════════════════ BUTTONS ══════════════════ */
+        .btn-primary {
+            display:inline-flex; align-items:center; gap:0.6rem;
+            background:var(--gold); color:var(--navy-darkest);
+            text-decoration:none; font-family:var(--font-body);
+            font-size:0.82rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+            padding:1rem 2.2rem; border-radius:2px; border:none; cursor:pointer;
+            transition:all 0.3s ease;
+            box-shadow:0 8px 30px rgba(201,169,110,0.22);
+        }
+        .btn-primary:hover { background:var(--gold-bright); transform:translateY(-2px); box-shadow:0 16px 40px rgba(201,169,110,.38); }
+        .btn-secondary {
+            display:inline-flex; align-items:center; gap:0.6rem;
+            background:transparent; color:var(--text-primary);
+            text-decoration:none; font-family:var(--font-body);
+            font-size:0.82rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase;
+            padding:1rem 2.2rem; border-radius:2px; border:1px solid var(--border-bright);
+            transition:all 0.3s ease;
+        }
+        .btn-secondary:hover { border-color:var(--gold); color:var(--gold); transform:translateY(-2px); }
+
+        /* ══════════════════ COMMON SECTIONS ══════════════════ */
+        .container { max-width:1200px; margin:0 auto; padding:0 2rem; }
+        .section-label {
+            font-size:0.68rem; letter-spacing:0.32em; text-transform:uppercase;
+            color:var(--gold); font-weight:700; margin-bottom:1rem;
+        }
+        .section-title {
+            font-family:var(--font-display);
+            font-size:clamp(2.2rem,4.5vw,3.6rem);
+            font-weight:300; line-height:1.12; margin-bottom:1.2rem;
+        }
+        .section-title em { font-style:normal; color:var(--gold); }
+        .section-desc { color:var(--text-secondary); font-size:0.95rem; font-weight:300; line-height:1.85; max-width:580px; }
+        .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.7s ease,transform 0.7s ease; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .reveal-d1{transition-delay:.1s;} .reveal-d2{transition-delay:.2s;}
+        .reveal-d3{transition-delay:.3s;} .reveal-d4{transition-delay:.4s;}
+
+        /* ══════════════════ STATS ══════════════════ */
+        #stats {
+            padding:3.5rem 0;
+            background:var(--navy-mid);
+            border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+        }
+        .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); }
+        .stat-item { text-align:center; padding:3rem 2rem; position:relative; }
+        .stat-item:not(:last-child)::after {
+            content:''; position:absolute; right:0; top:25%; height:50%;
+            width:1px; background:var(--border);
+        }
+        .stat-number {
+            font-family:var(--font-display); font-size:4rem;
+            font-weight:300; color:var(--gold); line-height:1; margin-bottom:1.2rem;
+        }
+        .stat-label { color:var(--text-secondary); font-size:0.85rem; line-height:1.55; max-width:210px; margin:0 auto; }
+        .stat-source { color:var(--text-muted); font-size:0.68rem; margin-top:0.5rem; }
+
+        /* ══════════════════ CASOS ══════════════════ */
+        #casos { padding:4.5rem 0; }
+        .casos-header { text-align:center; margin-bottom:2.5rem; }
+        .casos-header .section-desc { margin:0 auto; }
+        .casos-grid {
+            display:grid; grid-template-columns:repeat(3,1fr);
+            gap:1.5px; background:var(--border);
+            border:1px solid var(--border);
+        }
+        .caso-card {
+            background:var(--navy-dark); padding:2.5rem;
+            transition:background 0.4s; position:relative; overflow:hidden;
+            display:flex; flex-direction:column;
+        }
+        .caso-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,transparent,var(--gold),transparent);
+            opacity:0; transition:opacity 0.4s;
+        }
+        .caso-card:hover { background:var(--navy-light); }
+        .caso-card:hover::before { opacity:1; }
+        .caso-card.highlight { background:var(--navy-mid); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+        .caso-icon { font-size:2.2rem; margin-bottom:1.1rem; display:block; }
+        .caso-title { font-family:var(--font-display); font-size:1.45rem; font-weight:500; margin-bottom:0.9rem; }
+        .caso-desc { color:var(--text-secondary); font-size:0.85rem; line-height:1.75; margin-bottom:1.4rem; text-align:justify; }
+        .caso-features { list-style:none; margin-bottom:1.4rem; flex:1; }
+        .caso-features li {
+            display:flex; align-items:flex-start; gap:0.6rem;
+            color:var(--text-secondary); font-size:0.8rem; padding:0.28rem 0; text-align:justify;
+        }
+        .caso-features li::before { content:'—'; color:var(--gold-dim); flex-shrink:0; }
+        .caso-economy {
+            background:rgba(201,169,110,0.06); border:1px solid var(--border);
+            border-radius:3px; padding:0.7rem 1rem;
+            font-size:0.78rem; color:var(--gold); font-weight:600; letter-spacing:0.04em;
+            margin-top:auto;
+        }
+
+        /* ══════════════════ DEMO ══════════════════ */
+        #demo { padding:4.5rem 0; }
+        .demo-inner { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+        .demo-tags { display:grid; grid-template-columns:repeat(2,1fr); gap:0.55rem; margin-top:1.8rem; }
+        .demo-tag {
+            background:rgba(201,169,110,0.07); border:1px solid var(--border);
+            color:var(--gold); font-size:0.62rem; letter-spacing:0.05em;
+            text-transform:uppercase; padding:0.5rem 0.7rem; border-radius:100px;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            display:flex; align-items:center; justify-content:center; text-align:center;
+        }
+        /* Chat */
+        .chat-widget {
+            background:var(--navy-dark); border:1px solid var(--border); border-radius:14px;
+            overflow:hidden; box-shadow:0 40px 80px rgba(0,0,0,.45),0 0 0 1px var(--border);
+        }
+        .chat-header {
+            background:var(--navy-accent); padding:1rem 1.4rem;
+            display:flex; align-items:center; gap:0.9rem;
+            border-bottom:1px solid var(--border);
+        }
+        .chat-avatar {
+            width:42px; height:42px; border-radius:50%;
+            background:linear-gradient(135deg,var(--gold-dim),var(--gold));
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.3rem; flex-shrink:0;
+        }
+        .chat-name { font-weight:600; font-size:0.9rem; }
+        .chat-status {
+            font-size:0.7rem; color:var(--green);
+            display:flex; align-items:center; gap:0.3rem;
+        }
+        .chat-status::before { content:''; width:6px; height:6px; background:var(--green); border-radius:50%; }
+        .chat-messages {
+            height:340px; overflow-y:auto; padding:1.4rem;
+            display:flex; flex-direction:column; gap:0.9rem; scroll-behavior:smooth;
+        }
+        .chat-messages::-webkit-scrollbar { width:3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+        .msg { max-width:82%; animation:msgIn 0.3s ease; }
+        .msg-bot { align-self:flex-start; }
+        .msg-user { align-self:flex-end; }
+        @keyframes msgIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+        .msg-bubble { padding:0.78rem 1.05rem; border-radius:12px; font-size:0.875rem; line-height:1.55; }
+        .msg-bot .msg-bubble {
+            background:var(--navy-light); border:1px solid var(--border);
+            color:var(--text-primary); border-bottom-left-radius:3px;
+        }
+        .msg-user .msg-bubble {
+            background:var(--gold-dim); color:var(--navy-darkest);
+            font-weight:500; border-bottom-right-radius:3px;
+        }
+        .msg-time { font-size:0.63rem; color:var(--text-muted); margin-top:0.28rem; padding:0 0.3rem; }
+        .msg-bot .msg-time { text-align:left; }
+        .msg-user .msg-time { text-align:right; }
+        .typing-wrap { align-self:flex-start; display:none; }
+        .typing-wrap.active { display:block; }
+        .typing-bubble {
+            background:var(--navy-light); border:1px solid var(--border);
+            border-radius:12px; border-bottom-left-radius:3px;
+            padding:0.95rem 1.1rem; display:flex; gap:5px; align-items:center;
+        }
+        .dot { width:7px; height:7px; background:var(--gold-dim); border-radius:50%; animation:dots 1.4s ease infinite; }
+        .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+        @keyframes dots { 0%,100%{opacity:.3;transform:translateY(0);} 50%{opacity:1;transform:translateY(-4px);} }
+        .chat-input-area {
+            padding:1rem 1.3rem; border-top:1px solid var(--border);
+            display:flex; gap:0.7rem; align-items:flex-end;
+        }
+        .chat-input {
+            flex:1; background:var(--navy-light); border:1px solid var(--border);
+            border-radius:8px; padding:0.78rem 1rem;
+            color:var(--text-primary); font-family:var(--font-body); font-size:0.875rem;
+            resize:none; outline:none; max-height:110px; overflow-y:auto;
+            transition:border-color 0.3s;
+        }
+        .chat-input::placeholder { color:var(--text-muted); }
+        .chat-input:focus { border-color:var(--gold-dim); }
+        .chat-send {
+            width:42px; height:42px; background:var(--gold); border:none; border-radius:8px;
+            color:var(--navy-dark); cursor:pointer; display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; transition:all 0.3s;
+        }
+        .chat-send:hover { background:var(--gold-bright); transform:scale(1.07); }
+        .chat-send:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+        .chat-disclaimer { text-align:center; font-size:0.67rem; color:var(--text-muted); padding:0.4rem 1.4rem 0.9rem; }
+
+        /* ══════════════════ COMO FUNCIONA ══════════════════ */
+        #como-funciona { padding:4.5rem 0; }
+        .steps-header { text-align:center; margin-bottom:3.5rem; }
+        .steps-grid {
+            display:grid; grid-template-columns:repeat(5,1fr);
+            gap:0; position:relative;
+        }
+        .steps-grid::before {
+            content:''; position:absolute; top:27px; left:10%; right:10%; height:1px;
+            background:linear-gradient(90deg,transparent,var(--gold-dim) 20%,var(--gold-dim) 80%,transparent);
+            z-index:0;
+        }
+        .step { text-align:center; padding:0 0.8rem; position:relative; z-index:1; }
+        .step-num {
+            width:54px; height:54px; background:var(--navy-mid); border:1px solid var(--gold-dim);
+            border-radius:50%; display:block; line-height:48px; text-align:center;
+            font-family:var(--font-body); font-size:1.1rem; color:var(--gold); font-weight:600;
+            margin:0 auto 1.5rem; transition:all 0.4s;
+        }
+        .step:hover .step-num { background:var(--gold); color:var(--navy-dark); box-shadow:0 0 28px rgba(201,169,110,.3); border-color:var(--gold); }
+        .step-title { font-family:var(--font-display); font-size:1.1rem; font-weight:500; margin-bottom:0.5rem; }
+        .step-desc { font-size:0.8rem; color:var(--text-secondary); line-height:1.65; }
+
+        /* ══════════════════ PRECOS ══════════════════ */
+        #precos { padding:4.5rem 0; background:var(--navy-mid); }
+        .precos-header { text-align:center; margin-bottom:3rem; }
+        .pricing-grid {
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:2px; background:var(--border); border:1px solid var(--border); margin-bottom:3rem;
+        }
+        .pricing-card { background:var(--navy-dark); padding:3rem; }
+        .pricing-card.feat { background:var(--navy-accent); }
+        .pricing-label { font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:1.4rem; }
+        .pricing-title { font-family:var(--font-display); font-size:1.9rem; font-weight:400; margin-bottom:0.5rem; }
+        .pricing-price { font-family:var(--font-display); font-size:2.6rem; font-weight:300; color:var(--gold); line-height:1; margin-bottom:0.4rem; }
+        .pricing-note { font-size:0.78rem; color:var(--text-muted); margin-bottom:2rem; }
+        .pricing-list { list-style:none; }
+        .pricing-list li {
+            display:flex; align-items:flex-start; gap:0.8rem;
+            padding:0.58rem 0; border-bottom:1px solid var(--border);
+            font-size:0.875rem; color:var(--text-secondary);
+        }
+        .pricing-list li:last-child { border-bottom:none; }
+        .pricing-list li::before { content:'✓'; color:var(--gold); font-weight:700; flex-shrink:0; }
+        /* Tokens */
+        .tokens-title { font-family:var(--font-display); font-size:1.55rem; font-weight:500; color:var(--gold); margin-bottom:1rem; }
+        .tokens-desc { font-size:0.88rem; color:var(--text-secondary); line-height:1.85; text-align:justify; }
+        .tokens-desc strong { color:var(--gold-pale); }
+        /* ROI */
+        .roi-box { background:var(--navy-dark); border:1px solid var(--border); padding:3.5rem; }
+        .roi-title { font-family:var(--font-display); font-size:2rem; font-weight:400; text-align:center; margin-bottom:3rem; }
+        .roi-title em { color:var(--gold); font-style:italic; }
+        .roi-grid { display:grid; grid-template-columns:1fr 80px 1fr; gap:2rem; align-items:center; }
+        .roi-col { }
+        .roi-col-title { font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-muted); text-align:center; margin-bottom:1.5rem; }
+        .roi-row { padding:0.75rem 0; border-bottom:1px solid var(--border); }
+        .roi-row:last-child { border-bottom:none; }
+        .roi-row-label { font-size:0.78rem; color:var(--text-secondary); margin-bottom:0.25rem; }
+        .roi-row-val { font-family:var(--font-display); font-size:1.25rem; font-weight:500; }
+        .roi-row-val.neg { color:var(--red); }
+        .roi-row-val.pos { color:var(--green); }
+        .roi-vs { font-family:var(--font-display); font-size:2.2rem; font-style:italic; color:var(--gold-dim); text-align:center; }
+        .roi-total-label { font-size:0.82rem; font-weight:600; color:var(--text-primary); margin-bottom:0.3rem; }
+        .roi-total-val { font-family:var(--font-display); font-size:2rem; font-weight:500; white-space:nowrap; }
+
+        /* ══════════════════ FAQ ══════════════════ */
+        #faq { padding:4.5rem 0 2.5rem; }
+        .faq-header { text-align:center; margin-bottom:2.5rem; }
+        .faq-list { max-width:800px; margin:0 auto; }
+        .faq-item { border-bottom:1px solid var(--border); }
+        .faq-q {
+            width:100%; background:none; border:none; text-align:left;
+            padding:1.45rem 0; display:flex; justify-content:space-between; align-items:center;
+            color:var(--text-primary); font-family:var(--font-body); font-size:0.95rem; font-weight:500;
+            cursor:pointer; gap:1rem; transition:color 0.3s;
+        }
+        .faq-q:hover { color:var(--gold); }
+        .faq-icon {
+            width:26px; height:26px; border:1px solid var(--border-bright); border-radius:50%;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0;
+            color:var(--gold); font-size:1.1rem; transition:all 0.3s;
+        }
+        .faq-item.open .faq-icon { transform:rotate(45deg); background:var(--gold); color:var(--navy-dark); border-color:var(--gold); }
+        .faq-a { max-height:0; overflow:hidden; transition:max-height 0.4s ease; }
+        .faq-item.open .faq-a { max-height:260px; }
+        .faq-a-inner { padding:0 0 1.5rem; color:var(--text-secondary); font-size:0.875rem; line-height:1.85; }
+
+        /* ══════════════════ CTA FINAL ══════════════════ */
+        #cta-final { padding:6rem 0; text-align:center; position:relative; overflow:hidden; }
+        .cta-radial {
+            position:absolute; inset:0;
+            background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(201,169,110,0.07) 0%,transparent 70%);
+            pointer-events:none;
+        }
+        .cta-line { width:1px; height:28px; background:linear-gradient(to bottom,transparent,var(--gold-dim)); margin:0 auto 2rem; }
+        .cta-title { font-family:var(--font-display); font-size:clamp(2.5rem,5.5vw,4.8rem); font-weight:300; line-height:1.12; margin-bottom:1.5rem; }
+        .cta-title em { font-style:italic; color:var(--gold); }
+        .cta-sub { color:var(--text-secondary); font-size:1rem; font-weight:300; max-width:500px; margin:0 auto 3rem; line-height:1.75; }
+        .cta-badges { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem 2rem; margin-top:2.5rem; max-width:360px; margin-left:auto; margin-right:auto; }
+        .cta-badge-item { text-align:center; display:flex; flex-direction:column; align-items:center; }
+        .cta-badge-check { font-family:var(--font-display); font-size:1.6rem; color:var(--gold); }
+        .cta-badge-text { font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem; }
+
+        /* ══════════════════ FOOTER ══════════════════ */
+        footer { background:var(--navy-darkest); border-top:1px solid var(--border); padding:2.8rem 0 1.5rem; }
+        .footer-top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:2rem; margin-bottom:2rem; }
+        .footer-logo { display:flex; align-items:center; gap:0; text-decoration:none; line-height:0; }
+        .footer-logo-text { font-family:var(--font-body); font-weight:700; font-size:0.9rem; letter-spacing:0.28em; color:var(--gold); }
+        .footer-links { display:flex; gap:2rem; flex-wrap:wrap; }
+        .footer-links a { color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s; }
+        .footer-links a:hover { color:var(--gold); }
+        .footer-copy { text-align:center; color:var(--text-muted); font-size:0.73rem; border-top:1px solid var(--border); padding-top:1.5rem; }
+
+        /* ══ CARD BACKGROUND IMAGES ══ */
+        .card-bg {
+            position:absolute; inset:0;
+            background-size:cover; background-position:center;
+            opacity:0.13; z-index:0;
+            transition:opacity 0.4s;
+        }
+        .caso-card:hover .card-bg { opacity:0.22; }
+        .caso-card > *:not(.card-bg) { position:relative; z-index:1; }
+        /* ══ TOKENS BOX IMAGE ══ */
+        .tokens-box {
+            background:var(--navy-dark); border:1px solid var(--border);
+            border-left:3px solid var(--gold); padding:2.5rem;
+            border-radius:0 4px 4px 0; margin-bottom:3rem;
+            position:relative; overflow:hidden;
+        }
+        .tokens-box-bg {
+            position:absolute; inset:0;
+            background-image:url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&q=70');
+            background-size:cover; background-position:center;
+            opacity:0.13; z-index:0;
+        }
+        .tokens-box > *:not(.tokens-box-bg) { position:relative; z-index:1; }
+
+
+        /* ══ DEMO REDESIGN ══ */
+        .demo-split { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+        .demo-how-title { font-family:var(--font-display); font-size:1.7rem; font-weight:400; margin-bottom:2rem; }
+        .demo-steps-list { display:flex; flex-direction:column; gap:2rem; }
+        .demo-step-item { display:flex; align-items:flex-start; gap:1rem; min-height:85px; }
+        .demo-step-num {
+            width:38px; height:38px; border:1px solid var(--gold-dim); border-radius:50%; flex-shrink:0;
+            display:block; line-height:34px; text-align:center;
+            font-family:var(--font-body); font-size:1rem; color:var(--gold); font-weight:600;
+        }
+        .demo-step-text { color:var(--text-secondary); font-size:0.9rem; line-height:1.65; padding-top:0.5rem; }
+        .demo-step-text strong { color:var(--gold); }
+        /* WA card */
+        .demo-wa-card {
+            background:var(--navy-mid); border:1px solid var(--border-bright);
+            border-radius:20px; padding:2.8rem 2.2rem; text-align:center;
+            box-shadow:0 40px 80px rgba(0,0,0,0.5);
+        }
+        .demo-wa-icon-wrap {
+            width:90px; height:90px; background:#25D366; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; margin:0 auto 1.4rem;
+            box-shadow:0 8px 32px rgba(37,211,102,0.4);
+        }
+        .demo-wa-agent-name { font-family:var(--font-display); font-size:1.5rem; font-weight:500; margin-bottom:0.5rem; }
+        .demo-wa-status-line {
+            display:flex; align-items:center; justify-content:center; gap:0.5rem;
+            color:#4caf8a; font-size:0.78rem; margin-bottom:2rem;
+        }
+        .demo-wa-dot { width:8px; height:8px; background:#4caf8a; border-radius:50%; animation:pulseDot 2s ease infinite; }
+        .demo-wa-desc { color:var(--text-secondary); font-size:0.9rem; line-height:1.8; margin-bottom:2.2rem; }
+        .demo-wa-desc strong { color:var(--gold-pale); }
+        .demo-wa-btn {
+            display:inline-flex; align-items:center; gap:0.8rem;
+            background:#25D366; color:#fff; text-decoration:none;
+            font-family:var(--font-body); font-size:1.05rem; font-weight:700; letter-spacing:0.04em;
+            padding:1.1rem 2.6rem; border-radius:100px;
+            animation:waPulse 2.5s ease infinite;
+            box-shadow:0 8px 36px rgba(37,211,102,0.4);
+            transition:all 0.3s ease;
+        }
+        .demo-wa-btn:hover { background:#1eb85a; animation:none; transform:scale(1.06); box-shadow:0 14px 52px rgba(37,211,102,0.7); }
+        @keyframes waPulse {
+            0%,100%{ transform:scale(1); box-shadow:0 8px 36px rgba(37,211,102,0.35); }
+            50%{ transform:scale(1.06); box-shadow:0 16px 56px rgba(37,211,102,0.65); }
+        }
+        .demo-wa-note { color:var(--text-muted); font-size:0.7rem; margin-top:1.2rem; letter-spacing:0.06em; }
+
+
+        @media(min-width:900px){
+            .caso-card { min-height:500px; }
+            .casos-grid { align-items:stretch; grid-auto-rows:1fr; }
+            .caso-economy { min-height:85px; display:flex; align-items:center; justify-content:center; text-align:center; }
+            .demo-steps-list { gap:1rem; }
+            .demo-step-item { min-height:65px; }
+            .demo-wa-btn {
+                font-size:0.85rem;
+                padding:0.75rem 1.8rem;
+                border-radius:100px;
+            }
+            .demo-wa-icon-wrap { width:70px; height:70px; }
+            .demo-wa-icon-wrap svg { width:38px; height:38px; }
+        }
+        /* ══════════════════ RESPONSIVE ══════════════════ */
+        @media(max-width:900px){
+            .caso-card { min-height:440px; }
+            .casos-grid { grid-template-columns:repeat(2,1fr); }
+            .steps-grid { grid-template-columns:1fr; gap:2.2rem; }
+            .steps-grid::before { display:none; }
+            .pricing-grid { grid-template-columns:1fr; }
+            .roi-grid { grid-template-columns:1fr; }
+            .roi-vs { display:none; }
+        }
+        @media(max-width:700px){
+            nav { padding:1rem 1.5rem; }
+            .nav-links { display:none; }
+            .hamburger { display:flex; }
+            .demo-split { grid-template-columns:1fr; gap:2.5rem; }
+            .stats-grid { grid-template-columns:1fr; }
+            .stat-item:not(:last-child)::after { display:none; }
+            .stat-item { border-bottom:1px solid var(--border); }
+            .casos-grid { grid-template-columns:1fr; }
+            .footer-top { flex-direction:column; text-align:center; }
+            .footer-links { justify-content:center; }
+        }
+        @media(max-width:480px){
+            .hero-ctas { flex-direction:column; align-items:center; }
+            .btn-primary, .btn-secondary { width:100%; max-width:320px; justify-content:center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+    <a href="#" class="nav-logo">
+        <img class="logo-img" src="https://raw.githubusercontent.com/wvortexai-tech/site-wvortex/main/LOGO%20ESTILIZADA%20WVORTEX%20SEM%20FUNDO.png" alt="WVortex Logo" style="height:70px;width:auto;display:block;">
+    </a>
+    <ul class="nav-links">
+        <li><a href="#casos">Soluções</a></li>
+        <li><a href="#demo">Demo ao vivo</a></li>
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#precos">Preços</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" class="nav-cta" target="_blank">Falar com especialista</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#casos" onclick="toggleMenu()">Soluções</a>
+    <a href="#demo" onclick="toggleMenu()">Demo ao vivo</a>
+    <a href="#como-funciona" onclick="toggleMenu()">Como funciona</a>
+    <a href="#precos" onclick="toggleMenu()">Preços</a>
+    <a href="#faq" onclick="toggleMenu()">FAQ</a>
+    <a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" target="_blank">Falar com especialista</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+    <div class="hero-bg"></div>
+    <div class="stars" id="starsEl"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <div class="hero-badge-dot"></div>
+            Tecnologia de Inteligência Artificial aplicada a negócios
+        </div>
+        <h1 class="hero-title">
+            SUA EMPRESA <em>VENDENDO 24H</em><br>
+            COM INTELIGÊNCIA ARTIFICIAL
+        </h1>
+        <p class="hero-sub">
+            A WVortex cria agentes de IA que atendem clientes, qualificam leads e fecham negócios no WhatsApp — sem pausas, sem falhas, sem custo de hora extra.
+        </p>
+        <div class="hero-ctas">
+            <a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" class="btn-primary" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                Quero meu agente de IA
+            </a>
+            <a href="#demo" class="btn-secondary">
+                Ver demo ao vivo
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </a>
+        </div>
+    </div>
+    <div class="hero-scroll">
+        <div class="scroll-line"></div>
+        <span>scroll</span>
+    </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item reveal">
+                <div class="stat-number" id="stat1" data-target="87">0%</div>
+                <div class="stat-label">dos consumidores esperam resposta imediata ao entrar em contato com uma empresa</div>
+                <div class="stat-source">Fonte: Salesforce State of the Connected Customer</div>
+            </div>
+            <div class="stat-item reveal reveal-d2">
+                <div class="stat-number">R$ 3.200</div>
+                <div class="stat-label">custo médio mensal de um atendente com salário, FGTS, INSS e benefícios</div>
+                <div class="stat-source">Estimativa CLT + encargos trabalhistas</div>
+            </div>
+            <div class="stat-item reveal reveal-d3">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">seu agente nunca dorme, nunca falta e nunca pede aumento</div>
+                <div class="stat-source">100% do tempo disponível, todos os dias</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CASOS DE USO -->
+<section id="casos" style="position:relative;">
+    <div class="section-stars" id="starsC"></div>
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="casos-header reveal">
+            <div class="section-label">Soluções por segmento</div>
+            <h2 class="section-title">Seu agente pode fazer <em>tudo isso</em></h2>
+            <p class="section-desc">Cada agente é construído do zero, sob medida para o seu negócio. Veja o que já entregamos para diferentes segmentos.</p>
+        </div>
+        <div class="casos-grid">
+
+            <div class="caso-card reveal">
+                <div class="card-bg" style="background-image:url('https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=60')"></div>
+                <span class="caso-icon">🦷</span>
+                <h3 class="caso-title">Clínicas e Odontologias</h3>
+                <p class="caso-desc">Agendamento automático, confirmação de consultas, lembretes, dúvidas sobre procedimentos e valores — tudo sem tirar a secretária do atendimento presencial.</p>
+                <ul class="caso-features">
+                    <li>Agenda e cancela consultas no Google Calendar</li>
+                    <li>Responde dúvidas 24h com base no seu portfólio</li>
+                    <li>Confirma presença e reduz faltas</li>
+                    <li>Capta e qualifica novos pacientes automaticamente</li>
+                </ul>
+                <div class="caso-economy">💰 Substitui até 1 secretária de atendimento</div>
+            </div>
+
+            <div class="caso-card reveal reveal-d1">
+                <div class="card-bg" style="background-image:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=60')"></div>
+                <span class="caso-icon">🏠</span>
+                <h3 class="caso-title">Corretoras de Imóveis</h3>
+                <p class="caso-desc">Captação e qualificação de leads no WhatsApp, filtragem por perfil (compra, aluguel, faixa de preço, região), envio de imóveis e agendamento de visitas.</p>
+                <ul class="caso-features">
+                    <li>Qualifica o lead antes de chegar ao corretor</li>
+                    <li>Envia fichas de imóveis por perfil do cliente</li>
+                    <li>Agenda visitas com lembretes automáticos</li>
+                    <li>Follow-up automático de leads frios</li>
+                </ul>
+                <div class="caso-economy">💰 Mais leads qualificados, menos tempo desperdiçado</div>
+            </div>
+
+            <div class="caso-card reveal reveal-d2">
+                <div class="card-bg" style="background-image:url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=60')"></div>
+                <span class="caso-icon">🏥</span>
+                <h3 class="caso-title">Clínicas Médicas e Estéticas</h3>
+                <p class="caso-desc">Atendimento inicial de pacientes, triagem, direcionamento para o especialista correto, agendamentos e envio de orientações pré e pós procedimento.</p>
+                <ul class="caso-features">
+                    <li>Triagem e direcionamento de especialidade</li>
+                    <li>Envio de orientações personalizadas</li>
+                    <li>Gestão de lista de espera automática</li>
+                    <li>Pesquisa de satisfação pós-consulta</li>
+                </ul>
+                <div class="caso-economy">💰 Redução de 60-80% das mensagens manuais da equipe</div>
+            </div>
+
+            <div class="caso-card reveal">
+                <div class="card-bg" style="background-image:url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=60')"></div>
+                <span class="caso-icon">🛒</span>
+                <h3 class="caso-title">E-commerce e Varejo</h3>
+                <p class="caso-desc">Suporte pós-venda, rastreamento de pedidos, troca e devolução, promoções personalizadas por histórico de compra e recuperação de carrinhos abandonados.</p>
+                <ul class="caso-features">
+                    <li>Rastreamento de pedidos em tempo real</li>
+                    <li>Suporte de troca e devolução sem humano</li>
+                    <li>Promoções segmentadas por comportamento</li>
+                    <li>Recuperação de carrinho com desconto automático</li>
+                </ul>
+                <div class="caso-economy">💰 Reduz suporte humano e aumenta taxa de recompra</div>
+            </div>
+
+            <div class="caso-card reveal reveal-d1">
+                <div class="card-bg" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=60')"></div>
+                <span class="caso-icon">⚙️</span>
+                <h3 class="caso-title">Automação de Processos</h3>
+                <p class="caso-desc">Cobrança automática com boletos e lembretes, onboarding de novos clientes, coleta de documentos, aprovação de orçamentos e notificações de equipe.</p>
+                <ul class="caso-features">
+                    <li>Régua de cobrança automatizada via WhatsApp</li>
+                    <li>Onboarding com coleta de dados do cliente</li>
+                    <li>Notificações e alertas internos de equipe</li>
+                    <li>Integração com CRM, ERP e planilhas</li>
+                </ul>
+                <div class="caso-economy">💰 Elimina processos repetitivos que consomem horas da equipe</div>
+            </div>
+
+            <div class="caso-card highlight reveal reveal-d2">
+                <span class="caso-icon">✨</span>
+                <h3 class="caso-title">Seu negócio aqui</h3>
+                <p class="caso-desc" style="text-align:center;">Não encontrou seu segmento? Cada agente é único. Podemos construir a solução ideal para qualquer negócio.</p>
+                <a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" class="btn-primary" target="_blank" style="font-size:0.78rem;padding:0.85rem 1.6rem;margin-top:1rem;">
+                    Falar com especialista
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" style="position:relative;background:var(--navy-darkest);">
+    <div class="section-stars" id="starsD"></div>
+    <div class="container" style="position:relative;z-index:1;">
+
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+            <div class="section-label">Experimente ao vivo — de graça</div>
+            <h2 class="section-title">Teste o <em>Agente Odonto</em><br>agora mesmo</h2>
+            <p class="section-desc" style="margin:0 auto;text-align:center;max-width:580px;">
+                Um agente de IA real, idêntico ao que entregamos para nossos clientes. Sem scripts, sem simulação — você experimenta o produto de verdade.
+            </p>
+        </div>
+
+        <div class="demo-split">
+
+            <!-- INSTRUÇÕES -->
+            <div class="reveal">
+                <h3 class="demo-how-title">Como fazer o teste:</h3>
+                <div class="demo-steps-list">
+                    <div class="demo-step-item">
+                        <div class="demo-step-num">1</div>
+                        <div class="demo-step-text">Clique no botão verde ao lado para abrir o WhatsApp</div>
+                    </div>
+                    <div class="demo-step-item">
+                        <div class="demo-step-num">2</div>
+                        <div class="demo-step-text"><strong>Simule que você é um paciente</strong> querendo marcar uma consulta em uma clínica odontológica</div>
+                    </div>
+                    <div class="demo-step-item">
+                        <div class="demo-step-num">3</div>
+                        <div class="demo-step-text">Pergunte sobre procedimentos, valores, disponibilidade — cancele, reagende, explore o agente à vontade!</div>
+                    </div>
+                </div>
+                <div class="demo-tags" style="margin-top:2rem;">
+                    <span class="demo-tag">✓ Agendamento</span>
+                    <span class="demo-tag">✓ Cancelamento</span>
+                    <span class="demo-tag">✓ Reagendamento</span>
+                    <span class="demo-tag">✓ Procedimentos</span>
+                    <span class="demo-tag">✓ Disponibilidade</span>
+                    <span class="demo-tag">✓ Dúvidas gerais</span>
+                </div>
+            </div>
+
+            <!-- CARD WHATSAPP -->
+            <div class="reveal reveal-d2">
+                <div class="demo-wa-card">
+                    <div class="demo-wa-icon-wrap">
+                        <svg width="52" height="52" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    </div>
+                    <div class="demo-wa-agent-name">🦷 Agente Odonto — WVortex</div>
+                    <div class="demo-wa-status-line"><span class="demo-wa-dot"></span>Online agora</div>
+                    <p class="demo-wa-desc">
+                        Toque no botão abaixo e converse de verdade.<br>
+                        <strong>Simule ser um paciente</strong> querendo agendar uma consulta.
+                    </p>
+                    <a href="https://wa.me/5521972116515?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20WVortex%20e%20quero%20testar%20o%20agente%20odontol%C3%B3gico."
+                       class="demo-wa-btn" target="_blank">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                        Testar Agente no WhatsApp
+                    </a>
+                    <p class="demo-wa-note">Teste gratuito &nbsp;·&nbsp; Sem compromisso &nbsp;·&nbsp; Dados protegidos</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona" style="position:relative;">
+    <div class="section-stars" id="starsF"></div>
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="steps-header reveal">
+            <div class="section-label">Processo</div>
+            <h2 class="section-title">Como <em>funciona</em></h2>
+            <p class="section-desc" style="margin:0 auto;text-align:center;">Do primeiro contato à sua empresa com IA rodando — em poucos dias úteis.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step reveal">
+                <div class="step-num">1</div>
+                <div class="step-title">Primeiro contato</div>
+                <div class="step-desc">Você nos conta sobre o seu negócio pelo WhatsApp, site ou redes sociais.</div>
+            </div>
+            <div class="step reveal reveal-d1">
+                <div class="step-num">2</div>
+                <div class="step-title">Entendimento</div>
+                <div class="step-desc">Analisamos seu atendimento e identificamos onde a IA gera mais resultado.</div>
+            </div>
+            <div class="step reveal reveal-d2">
+                <div class="step-num">3</div>
+                <div class="step-title">Solução personalizada</div>
+                <div class="step-desc">Desenhamos o agente ideal para o seu negócio, completamente do zero.</div>
+            </div>
+            <div class="step reveal reveal-d3">
+                <div class="step-num">4</div>
+                <div class="step-title">Implementação</div>
+                <div class="step-desc">Desenvolvemos, testamos e configuramos tudo de forma simples e eficiente.</div>
+            </div>
+            <div class="step reveal reveal-d4">
+                <div class="step-num">5</div>
+                <div class="step-title">Crescimento</div>
+                <div class="step-desc">Com o agente rodando, você ganha agilidade, reduz custos e vende mais.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRECOS -->
+<section id="precos">
+    <div class="container">
+        <div class="precos-header reveal">
+            <div class="section-label">Investimento</div>
+            <h2 class="section-title">Transparência em <em>cada real</em></h2>
+            <p class="section-desc" style="margin:0 auto;text-align:center;">Sem surpresas. Sem letras miúdas. Entenda exatamente o que você está pagando e o que recebe em troca.</p>
+        </div>
+
+        <div class="pricing-grid reveal">
+            <div class="pricing-card">
+                <div class="pricing-label">Taxa única no início</div>
+                <div class="pricing-title">Implementação</div>
+                <div class="pricing-price">Sob consulta</div>
+                <div class="pricing-note">varia conforme complexidade do projeto</div>
+                <ul class="pricing-list">
+                    <li>Análise completa do seu negócio e processos</li>
+                    <li>Construção do agente do zero para seu segmento</li>
+                    <li>Programação, integrações e automações</li>
+                    <li>Personalização: tom, nome, identidade e fluxos</li>
+                    <li>Base de conhecimento do seu negócio</li>
+                    <li>Testes exaustivos antes da entrega</li>
+                    <li>Onboarding e treinamento para uso</li>
+                </ul>
+            </div>
+            <div class="pricing-card feat">
+                <div class="pricing-label">Recorrência mensal</div>
+                <div class="pricing-title">Manutenção + IA</div>
+                <div class="pricing-price">A partir de R$ 500</div>
+                <div class="pricing-note">/mês — varia com volume e complexidade do uso</div>
+                <ul class="pricing-list">
+                    <li>Tokens de IA incluídos (o "combustível" das respostas)</li>
+                    <li>Manutenção, monitoramento e correção de bugs</li>
+                    <li>Alterações leves no agente sem custo extra</li>
+                    <li>Estabilidade e disponibilidade 24/7</li>
+                    <li>Suporte via WhatsApp com nossa equipe</li>
+                    <li>Atualizações de segurança e desempenho</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tokens-box reveal">
+            <div class="tokens-box-bg"></div>
+            <div class="tokens-title">🔋 O que são tokens — e por que estão na sua mensalidade?</div>
+            <p class="tokens-desc">
+                Imagine que tokens são como as "palavras" que a inteligência artificial lê e escreve. Cada vez que um cliente manda uma mensagem, o agente precisa ler o histórico da conversa, raciocinar sobre o que foi dito e escrever uma resposta inteligente. Cada etapa desse processo consome tokens — e tokens têm custo, cobrado pelas empresas de IA como a OpenAI.<br><br>
+                É como a conta de energia elétrica do seu agente: quanto mais ele trabalha (mais clientes, mensagens mais longas, respostas mais complexas), mais "energia" consome. <strong>Por isso nossa mensalidade já cobre esse custo de forma previsível</strong>: você nunca tem surpresas no final do mês. O plano é ajustado ao volume do seu negócio — tudo calculado para que você pague o justo e o agente nunca pare de responder.
+            </p>
+        </div>
+
+        <div class="roi-box reveal">
+            <h3 class="roi-title">O agente se <em>paga sozinho</em></h3>
+            <div class="roi-grid">
+                <div class="roi-col">
+                    <div class="roi-col-title">👤 Atendente Humano</div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Salário base</div>
+                        <div class="roi-row-val neg">R$ 1.800/mês</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Encargos (FGTS + INSS + férias)</div>
+                        <div class="roi-row-val neg">+ R$ 900/mês</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">VT + plano de saúde</div>
+                        <div class="roi-row-val neg">+ R$ 500/mês</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Disponibilidade</div>
+                        <div class="roi-row-val neg">8h/dia · 5 dias/semana</div>
+                    </div>
+                    <div class="roi-row" style="border:none;padding-top:1.2rem;">
+                        <div class="roi-total-label">Custo total mensal</div>
+                        <div class="roi-total-val neg" style="color:var(--red)">≈ R$ 3.200/mês</div>
+                    </div>
+                </div>
+
+                <div class="roi-vs">vs</div>
+
+                <div class="roi-col">
+                    <div class="roi-col-title">🤖 Agente WVortex</div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Mensalidade (manutenção + tokens IA)</div>
+                        <div class="roi-row-val pos">A partir de R$ 500/mês</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Encargos trabalhistas</div>
+                        <div class="roi-row-val pos">R$ 0</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Benefícios e VT</div>
+                        <div class="roi-row-val pos">R$ 0</div>
+                    </div>
+                    <div class="roi-row">
+                        <div class="roi-row-label">Disponibilidade</div>
+                        <div class="roi-row-val pos">24h/dia · 7 dias/semana</div>
+                    </div>
+                    <div class="roi-row" style="border:none;padding-top:1.2rem;">
+                        <div class="roi-total-label">Economia mensal estimada</div>
+                        <div class="roi-total-val" style="color:var(--green)">≈ R$ 2.700/mês</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="position:relative;">
+    <div class="section-stars" id="starsQ"></div>
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="faq-header reveal">
+            <div class="section-label">Dúvidas frequentes</div>
+            <h2 class="section-title">Perguntas <em>e respostas</em></h2>
+        </div>
+        <div class="faq-list">
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Preciso trocar meu número de WhatsApp para usar o agente?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">Não. O agente funciona com o seu número atual de WhatsApp Business, sem precisar trocar nada. Conectamos a IA diretamente ao seu número e o seu cliente nem percebe que está falando com um sistema automatizado.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Posso continuar respondendo manualmente quando quiser?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">Sim, sempre. O sistema tem controle de intervenção humana: quando você responde uma conversa, o agente entra em modo silencioso automaticamente por um período. Você assume quando quiser e o agente retoma quando você se ausentar. O controle é sempre seu.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    O que acontece se a IA não souber responder algo?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">O agente é treinado com toda a base de conhecimento do seu negócio — serviços, preços, horários, procedimentos, políticas. Para situações que fogem do escopo treinado, ele informa educadamente que vai transferir para um humano e você recebe um alerta. Nenhuma conversa fica sem resposta.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Quanto tempo leva para o agente estar funcionando?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">Projetos mais simples podem estar no ar em 5 a 10 dias úteis. Durante esse período, construímos o agente, treinamos com os dados do seu negócio, testamos exaustivamente em diferentes cenários e fazemos o onboarding com você antes de ligar para os seus clientes.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Posso pedir alterações no agente depois que ele estiver pronto?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">Sim. Alterações leves — mudar um texto, adicionar uma informação, ajustar um fluxo simples — estão inclusas na mensalidade sem custo extra. Funcionalidades novas ou mudanças maiores na estrutura do agente são avaliadas e orçadas separadamente.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    O que está incluso na mensalidade mensal?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">A mensalidade cobre os tokens de IA (o custo de cada resposta gerada pela inteligência artificial), a manutenção do sistema, correção de eventuais bugs, monitoramento de estabilidade 24/7, suporte via WhatsApp e alterações leves. Tudo-incluso — sem surpresas no final do mês.</div></div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    O agente funciona apenas no WhatsApp?
+                    <div class="faq-icon">+</div>
+                </button>
+                <div class="faq-a"><div class="faq-a-inner">O WhatsApp é o principal canal, mas podemos integrar com outros sistemas conforme a necessidade do seu negócio — Google Calendar, CRM, sistemas de agendamento, planilhas e muito mais. Cada projeto é avaliado individualmente para garantir que o agente faça sentido no seu fluxo de trabalho.</div></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="cta-final">
+    <div class="cta-radial"></div>
+    <div class="section-stars" id="starsA"></div>
+    <div class="container" style="position:relative;z-index:2;">
+        <div class="cta-line"></div>
+        <div class="section-label reveal">Próximo passo</div>
+        <h2 class="cta-title reveal">
+            Pronto para sua empresa<br>
+            atender <em>24 horas</em>?
+        </h2>
+        <p class="cta-sub reveal">
+            Fale com a gente agora. Em minutos você entende se um agente de IA faz sentido para o seu negócio — sem compromisso.
+        </p>
+        <div class="reveal">
+            <a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" class="btn-primary" target="_blank" style="font-size:0.95rem;padding:1.15rem 3rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                Falar com a WVortex agora
+            </a>
+        </div>
+        <div class="cta-badges reveal">
+            <div class="cta-badge-item"><div class="cta-badge-check">✓</div><div class="cta-badge-text">Consulta gratuita</div></div>
+            <div class="cta-badge-item"><div class="cta-badge-check">✓</div><div class="cta-badge-text">Sem fidelidade mínima</div></div>
+            <div class="cta-badge-item"><div class="cta-badge-check">✓</div><div class="cta-badge-text">Entrega em dias</div></div>
+            <div class="cta-badge-item"><div class="cta-badge-check">✓</div><div class="cta-badge-text">Suporte incluído</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-top">
+            <a href="#" class="footer-logo">
+                <img class="logo-img" src="https://raw.githubusercontent.com/wvortexai-tech/site-wvortex/main/LOGO%20ESTILIZADA%20WVORTEX%20SEM%20FUNDO.png" alt="WVortex Logo" style="height:70px;width:auto;display:block;">
+            </a>
+            <div class="footer-links">
+                <a href="https://www.instagram.com/wvortex.ai" target="_blank">Instagram</a>
+                <a href="https://www.linkedin.com/company/wvortex" target="_blank">LinkedIn</a>
+                <a href="mailto:contato@wvortex.com.br">contato@wvortex.com.br</a>
+                <a href="https://wa.me/5551993517025?text=Vim%20do%20site%20da%20WVortex%20e%20tenho%20interesse%20em%20saber%20mais%20sobre%20o%20agente%20de%20IA" target="_blank">+55 (51) 99351-7025</a>
+            </div>
+        </div>
+        <div class="footer-copy">© 2026 WVortex. Todos os direitos reservados. Rio de Janeiro, Brasil.</div>
+    </div>
+</footer>
+
+<script>
+/* ── STARS ── */
+(function(){
+    function makeStars(el, count) {
+        for(let i=0;i<count;i++){
+            const s = document.createElement('div');
+            s.className = 'star';
+            const sz = 1+Math.random()*2.5;
+            s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;
+                width:${sz}px;height:${sz}px;
+                --dur:${3+Math.random()*4}s;
+                --del:${Math.random()*6}s;
+                --op:${0.15+Math.random()*0.55};`;
+            el.appendChild(s);
+        }
+    }
+    // Hero (dense)
+    const hero = document.getElementById('starsEl');
+    if(hero) makeStars(hero, 65);
+    // Other dark sections (sparser)
+    ['starsC','starsD','starsF','starsQ','starsA'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) makeStars(el, 35);
+    });
+})();
+
+/* ── NAV SHRINK ── */
+window.addEventListener('scroll',()=>{
+    const nav = document.getElementById('mainNav');
+    nav.style.padding = window.scrollY > 60 ? '0.7rem 3rem' : '1.2rem 3rem';
+});
+
+/* ── MOBILE MENU ── */
+function toggleMenu(){
+    document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ── REVEAL ON SCROLL ── */
+const revealObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+/* ── STAT COUNTER ── */
+function countUp(el, target, suffix){
+    let cur=0; const step=target/25;
+    const t=setInterval(()=>{
+        cur+=step;
+        if(cur>=target){cur=target;clearInterval(t);}
+        el.textContent=Math.floor(cur)+suffix;
+    },30);
+}
+const statObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+        if(e.isIntersecting){
+            const el=document.getElementById('stat1');
+            if(el && el.dataset.target) countUp(el,parseInt(el.dataset.target),'%');
+            statObs.unobserve(e.target);
+        }
+    });
+},{threshold:0.5});
+const statSec=document.querySelector('#stats');
+if(statSec) statObs.observe(statSec);
+
+/* ── FAQ ── */
+function toggleFaq(btn){
+    const item=btn.parentElement;
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+}
+
+/* chat demo removed — using WhatsApp button */
+</script>
+</body>
+</html>
